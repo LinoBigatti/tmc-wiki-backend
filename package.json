@@ -1,0 +1,23 @@
+{
+  "name": "wiki-backend",
+  "version": "1.0.0",
+  "description": "Backend fo the Hekate/Tech mc Wiki",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linobigatti/tmc-wiki-backend.git"
+  },
+  "author": "Lino Bigatti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linobigatti/tmc-wiki-backend/issues"
+  },
+  "homepage": "https://github.com/linobigatti/tmc-wiki-backend#readme",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "express": "^4.17.1"
+  }
+}
