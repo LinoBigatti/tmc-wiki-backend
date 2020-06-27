@@ -15,11 +15,6 @@ ip += ':' + str(config["port"]) + '/'
 
 print("ip: " + ip)
 
-sha256 = hashlib.sha256()   #Start a hasher
-name = input('name: ')      #Get the name
-sha256.update(bytes(input("password: "), encoding='utf8'))
-pwd = sha256.hexdigest()    #Hash the password
-
 #Payload
 data1 = b'{"test": "e"}'
 #data2 = bytes(', "name": "' + name + '", "password": "' + pwd + '"}', encoding='utf8')

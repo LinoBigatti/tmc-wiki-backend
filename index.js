@@ -2,16 +2,18 @@ const express = require('express')
 const compression = require('compression')
 const fs = require('fs');
 const app = express();
+const Post = require('./posts')
 app.use(compression());
+app.use(express.json());
 
-function parsePost(req) {
-	console.log(req.body.test);
+const parsePost = (req, res) => {
+	var post = new Post(req.body.body);
+	console.log(`Created post #${post.id}`);
+	post.save();
+	res.send('0');
 }
 
-app.post('/post', (req, res) => {
-	var response = parsePost(req);
-	res.send(response)
-});
+app.post('/post', parsePost);
 
 app.get('/get', (req, res) => {
 	res.send('Getpost');
