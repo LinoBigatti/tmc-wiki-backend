@@ -1,5 +1,6 @@
 const express = require('express')
 const compression = require('compression')
+const fs = require('fs');
 const app = express();
 app.use(compression())
 
@@ -11,7 +12,7 @@ app.get('/get', (req, res) => {
 	res.send('Getpost')
 });
 
-config = { "port": 8000 }
+var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 app.listen(config["port"], () => {
 	console.log(`Backend running on ${config["port"]}`)
