@@ -2,22 +2,29 @@ const express = require('express')
 const compression = require('compression')
 const fs = require('fs');
 const app = express();
-const Post = require('./posts')
+const posts = require('./posts')
 app.use(compression());
 app.use(express.json());
 
 const parsePost = (req, res) => {
-	var post = new Post(req.body.body);
+	var post = new posts.Post(req.body.body, req.body.title);
 	console.log(`Created post #${post.id}`);
 	post.save();
+
 	res.send('0');
+}
+
+const getPost = (req, res) => {
+	var postId = posts.searchExactTitle(req.body.title);
+	var post = posts.getPostMetadata()[postId];
+	post.body = posts.getBody(post.id)
+
+	res.send(post);
 }
 
 app.post('/post', parsePost);
 
-app.get('/get', (req, res) => {
-	res.send('Getpost');
-});
+app.post('/get', getPost);
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
