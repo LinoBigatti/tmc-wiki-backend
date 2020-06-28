@@ -4,9 +4,11 @@ const fs = require('fs');
 const dir = './posts';
 
 class Post {
-	constructor(body, title) {
+	constructor(body, title, tags, desc) {
 		this.body = body;
 		this.title = title;
+		this.tags = tags;
+		this.desc = desc;
 		this.id = fs.readdirSync(dir).length;
 	}
 
@@ -20,7 +22,7 @@ class Post {
 		});
 
 		var postMetadata = getPostMetadata();
-		postMetadata[this.id - 1] = { "title": this.title, "id": this.id };
+		postMetadata[this.id - 1] = { "title": this.title, "id": this.id, "tags": this.tags, "description": this.desc};
 		fs.writeFile('metadata.json', JSON.stringify(postMetadata), function(err) {
     		if(err) {
         		return console.log(err);
