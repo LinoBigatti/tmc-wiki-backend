@@ -1,8 +1,9 @@
 const express = require('express')
 const compression = require('compression')
 const fs = require('fs');
-const app = express();
 const posts = require('./posts')
+
+const app = express();
 app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 
@@ -16,32 +17,54 @@ const parsePost = (req, res) => {
 	res.send('0');
 }
 
-const searchPost = (req, res) => {		//TODO: make it work xd
-	var postId = posts.searchExactTitle(req.body.title);
-	var post = posts.getPostMetadata()[postId];
-	post.body = posts.getBody(post.id)
-
-	res.send(post);
-}
-
 const getPost = (req, res) => {
+	var postId = req.query.id;
+	var post = posts.getPostMetadata()[postId - 1];
+	post.body = posts.getBody(post.id)
+
+	res.send(post);
+}
+const getPost_ = (req, res) => {
 	var postId = req.body.id;
-	var post = posts.getPostMetadata()[postId];
+	var post = posts.getPostMetadata()[postId - 1];
 	post.body = posts.getBody(post.id)
 
 	res.send(post);
 }
 
-app.post('/post', parsePost);
+const sendEditData = (req, res) => {
+	var postId = req.query.id;
+	var post = posts.getPostMetadata()[postId - 1];
+	post.body = posts.getBody(post.id)
 
-app.post('/search', searchPost);
+	res.send(post);
+}
+const editPost = (req, res) => {
+	var postId = req.query.id;
+	var post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+	post.setId(postId);
+	console.log(`Edited post #${post.id}`);
+	post.save();
 
-app.post('/get', getPost);
+	res.send('0');
+}
+
+app.get('/__getpost__', getPost);
+app.post('/__getpost__', getPost_);
+
+app.post('/__newpost__', parsePost);
+
+app.get('/__editpost__', sendEditData);
+app.post('/__editpost__', editPost);
 
 if(development) {
-	app.get('/clientPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
+	app.get('/newPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
 
-	app.get('/clientSearch', (req, res) => { res.sendFile(__dirname + '/client/search.html'); });
+	const edit = require('./client/edit');
+	app.get('/edit', edit.clientEdit);
+
+	const showPost = require('./client/showPost');
+	app.get('/post', showPost.clientGet);
 }
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));

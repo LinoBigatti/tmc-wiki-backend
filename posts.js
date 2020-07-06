@@ -7,7 +7,7 @@ class Post {
 	constructor(body, title, tags, desc) {
 		this.body = body;
 		this.title = title;
-		this.tags = tags;
+		this.tags = tags.split(';');
 		this.desc = desc;
 		this.id = fs.readdirSync(dir).length;
 	}
@@ -30,7 +30,10 @@ class Post {
 
     		console.log("Metadata saved correctly");
 		});
+	}
 
+	setId(id) {
+		this.id = id;
 	}
 }
 exports.Post = Post;

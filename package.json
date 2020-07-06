@@ -19,6 +19,8 @@
   "dependencies": {
     "compression": "^1.7.4",
     "express": "^4.17.1",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "markdown-it": "^11.0.0",
+    "node-fetch": "^2.6.0"
   }
 }
