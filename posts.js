@@ -45,6 +45,18 @@ const getPostMetadata = () => {
 }
 exports.getPostMetadata = getPostMetadata;
 
+const getPostData = () => {
+	var postData = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
+	console.log(postData);
+	for(post in postData) {
+		//post.body = getBody(post.id);
+		postData[post].body = getBody(postData[post].id);
+	}
+
+	return postData;
+}
+exports.getPostData = getPostData;
+
 const searchExactTitle = (title) => {
 	var postMetadata = getPostMetadata();
 

@@ -49,6 +49,12 @@ const editPost = (req, res) => {
 	res.send('0');
 }
 
+const getAll = (req, res) => {
+	var all = posts.getPostData()
+	
+	res.send(all);
+}
+
 app.get('/__getpost__', getPost);
 app.post('/__getpost__', getPost_);
 
@@ -56,6 +62,8 @@ app.post('/__newpost__', parsePost);
 
 app.get('/__editpost__', sendEditData);
 app.post('/__editpost__', editPost);
+
+app.get('/__allposts__', getAll);
 
 if(development) {
 	app.get('/newPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
