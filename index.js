@@ -10,10 +10,10 @@ app.use(express.urlencoded({ extended: true }));
 const development = true;
 
 const parsePost = (req, res) => {
+	console.log(req.body);
 	var post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	console.log(`Created post #${post.id}`);
 	post.save();
-
 	res.send('0');
 }
 
@@ -43,15 +43,14 @@ const editPost = (req, res) => {
 	var postId = req.query.id;
 	var post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	post.setId(postId);
+	post.edit_time(new Date());
 	console.log(`Edited post #${post.id}`);
 	post.save();
-
 	res.send('0');
 }
 
 const getAll = (req, res) => {
 	var all = posts.getPostData()
-	
 	res.send(all);
 }
 
