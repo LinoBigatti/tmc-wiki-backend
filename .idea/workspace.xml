@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7042bf51-660b-48f3-9fd7-e94b983c7b82" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/client/showPost.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/showPost.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts.js" beforeDir="false" afterPath="$PROJECT_DIR$/posts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/tmc-wiki-backend.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +41,8 @@
       <updated>1597011980429</updated>
       <workItem from="1597011981449" duration="2119000" />
       <workItem from="1597067326115" duration="6393000" />
-      <workItem from="1597161126265" duration="9283000" />
+      <workItem from="1597161126265" duration="9660000" />
+      <workItem from="1597247267449" duration="1914000" />
     </task>
     <servers />
   </component>
