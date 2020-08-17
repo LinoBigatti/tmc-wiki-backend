@@ -1,9 +1,11 @@
 const express = require('express')
 const compression = require('compression')
+// var bodyParser = require('body-parser')
 const fs = require('fs');
 const posts = require('./posts')
 
 const app = express();
+// app.use(bodyParser);
 app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 
@@ -11,46 +13,48 @@ const development = true;
 
 const parsePost = (req, res) => {
 	console.log(req.body);
-	var post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	console.log(`Created post #${post.id}`);
 	post.save();
 	res.send('0');
 }
 
 const getPost = (req, res) => {
-	var postId = req.query.id;
-	var post = posts.getPostMetadata()[postId - 1];
+	const postId = req.query.id;
+	const post = posts.getPostMetadata()[postId - 1];
 	post.body = posts.getBody(post.id)
-
+	// see what post number is being requested
+	console.log("Post ID Number: " + postId)
 	res.send(post);
 }
 const getPost_ = (req, res) => {
-	var postId = req.body.id;
-	var post = posts.getPostMetadata()[postId - 1];
+	const postId = req.body.id;
+	const post = posts.getPostMetadata()[postId - 1];
 	post.body = posts.getBody(post.id)
 
 	res.send(post);
 }
 
 const sendEditData = (req, res) => {
-	var postId = req.query.id;
-	var post = posts.getPostMetadata()[postId - 1];
+	const postId = req.query.id;
+	const post = posts.getPostMetadata()[postId - 1];
 	post.body = posts.getBody(post.id)
-
 	res.send(post);
 }
 const editPost = (req, res) => {
-	var postId = req.query.id;
-	var post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+	const postId = req.query.id;
+	// console.log(req.body.body);
+	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	post.setId(postId);
-	post.edit_time(new Date());
+	post.edit_time(new Date().toDateString());
 	console.log(`Edited post #${post.id}`);
 	post.save();
 	res.send('0');
 }
 
 const getAll = (req, res) => {
-	var all = posts.getPostData()
+	console.log(req)
+	const all = posts.getPostData()
 	res.send(all);
 }
 

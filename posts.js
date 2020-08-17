@@ -9,7 +9,7 @@ class Post {
 		this.title = title;
 		this.tags = tags;
 		this.desc = desc;
-		this.time = new Date();
+		this.time = new Date().toDateString();
 		this.id = fs.readdirSync(dir).length;
 	}
 	get_time() {
