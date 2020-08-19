@@ -41,15 +41,15 @@ const sendEditData = (req, res) => {
 	post.body = posts.getBody(post.id)
 	res.send(post);
 }
-const editPost = (req, res) => {
-	const postId = req.query.id;
-	// console.log(req.body.body);
-	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
-	post.setId(postId);
-	post.edit_time(new Date().toDateString());
-	console.log(`Edited post #${post.id}`);
-	post.save();
-	res.send('0');
+const editPost = async (req, res) => {
+	const  postId = await req.query.id;
+	await console.log(req.body.body);
+	const post = await new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+	await post.setId(postId);
+	await post.edit_time(new Date().toDateString());
+	await console.log(`Edited post #${post.id}`);
+	await post.save();
+	await res.send('0');
 }
 
 const getAll = (req, res) => {
