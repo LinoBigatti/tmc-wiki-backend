@@ -1,3 +1,7 @@
+/*
+TODO: sort posts by date.
+add
+ */
 const express = require('express')
 const compression = require('compression')
 const bodyParser = require('body-parser')
@@ -15,7 +19,7 @@ const parsePost = (req, res) => {
 	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	console.log(`Created post #${post.id}`);
 	post.save();
-	res.send('0');
+	res.redirect('/');
 }
 
 const getPost = (req, res) => {
@@ -34,12 +38,6 @@ const getPost_ = (req, res) => {
 	res.send(post);
 }
 
-const sendEditData = (req, res) => {
-	const postId = req.query.id;
-	const post = posts.getPostMetadata()[postId - 1];
-	post.body = posts.getBody(post.id)
-	res.send(post);
-}
 const editPost = async (req, res) => {
 	const  postId = req.query.id;
 	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
@@ -47,13 +45,16 @@ const editPost = async (req, res) => {
 	post.edit_time(new Date().toDateString());
 	console.log(`Edited post #${post.id}`);
 	post.save();
-	res.send('0');
+	res.redirect('/');
 }
 
-const getAll = (req, res) => {
-	console.log(req)
-	const all = posts.getPostData()
+const getAllPosts = (req, res) => {
+	const all = posts.getPostMetadata()
 	res.send(all);
+}
+const latestPosts = async (req, res) => {
+	const latest_three_posts = posts.getPostMetadata().slice(0,3)
+	res.send(latest_three_posts);
 }
 
 app.get('/__getpost__', getPost);
@@ -61,10 +62,10 @@ app.post('/__getpost__', getPost_);
 
 app.post('/__newpost__', parsePost);
 
-app.get('/__editpost__', sendEditData);
 app.post('/__editpost__', editPost);
 
-app.get('/__allposts__', getAll);
+app.get('/__allposts__', getAllPosts);
+app.get('/__latestposts__', latestPosts);
 
 if(development) {
 	app.get('/newPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
