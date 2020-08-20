@@ -1,18 +1,17 @@
 const express = require('express')
 const compression = require('compression')
-// var bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
 const fs = require('fs');
 const posts = require('./posts')
 
 const app = express();
-// app.use(bodyParser);
+app.use(bodyParser.json());
 app.use(compression());
-app.use(express.urlencoded({ extended: true }));
+//app.use(express.urlencoded({ extended: true }));
 
 const development = true;
 
 const parsePost = (req, res) => {
-	console.log(req.body);
 	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	console.log(`Created post #${post.id}`);
 	post.save();
@@ -42,14 +41,13 @@ const sendEditData = (req, res) => {
 	res.send(post);
 }
 const editPost = async (req, res) => {
-	const  postId = await req.query.id;
-	await console.log(req.body.body);
-	const post = await new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
-	await post.setId(postId);
-	await post.edit_time(new Date().toDateString());
-	await console.log(`Edited post #${post.id}`);
-	await post.save();
-	await res.send('0');
+	const  postId = req.query.id;
+	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+	post.setId(postId);
+	post.edit_time(new Date().toDateString());
+	console.log(`Edited post #${post.id}`);
+	post.save();
+	res.send('0');
 }
 
 const getAll = (req, res) => {
