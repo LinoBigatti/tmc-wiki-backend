@@ -13,13 +13,12 @@ app.use(bodyParser.json());
 app.use(compression());
 //app.use(express.urlencoded({ extended: true }));
 
-const development = true;
+const development = false;
 
 const parsePost = (req, res) => {
 	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	console.log(`Created post #${post.id}`);
 	post.save();
-	res.redirect('/');
 }
 
 const getPost = (req, res) => {
@@ -45,7 +44,6 @@ const editPost = async (req, res) => {
 	post.edit_time(new Date().toDateString());
 	console.log(`Edited post #${post.id}`);
 	post.save();
-	res.redirect('/');
 }
 
 const getAllPosts = (req, res) => {
