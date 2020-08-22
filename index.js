@@ -58,7 +58,7 @@ const latestPosts = async (req, res) => {
 app.get('/__getpost__', getPost);
 app.post('/__getpost__', getPost_);
 
-app.post('/__newpost__', parsePost);
+app.post('/api/__newpost__', parsePost);
 
 app.post('/__editpost__', editPost);
 
