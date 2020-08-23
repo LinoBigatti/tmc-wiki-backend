@@ -6,10 +6,12 @@ const express = require('express')
 const compression = require('compression')
 const bodyParser = require('body-parser')
 const fs = require('fs');
+const xss = require('xss-clean')
 const posts = require('./posts')
 
 const app = express();
 app.use(bodyParser.json());
+app.use(xss())
 app.use(compression());
 //app.use(express.urlencoded({ extended: true }));
 
