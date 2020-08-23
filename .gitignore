@@ -115,7 +115,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-posts/*
+#posts/*
 !posts/.nodelete
 
 /.idea
