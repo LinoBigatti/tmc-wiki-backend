@@ -23,6 +23,7 @@
     "fs": "0.0.1-security",
     "markdown-it": "^11.0.0",
     "node-fetch": "^2.6.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "passport-discord": "^0.1.4"
   }
 }
