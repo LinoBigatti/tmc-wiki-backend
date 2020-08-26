@@ -21,6 +21,7 @@ const parsePost = (req, res) => {
 	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
 	console.log(`Created post #${post.id}`);
 	post.save();
+	res.send('OK')
 }
 
 const getPost = (req, res) => {
@@ -35,7 +36,6 @@ const getPost_ = (req, res) => {
 	const postId = req.body.id;
 	const post = posts.getPostMetadata()[postId - 1];
 	post.body = posts.getBody(post.id)
-
 	res.send(post);
 }
 
@@ -46,6 +46,7 @@ const editPost = async (req, res) => {
 	post.edit_time(new Date().toDateString());
 	console.log(`Edited post #${post.id}`);
 	post.save();
+	res.send('OK')
 }
 
 const getAllPosts = (req, res) => {
