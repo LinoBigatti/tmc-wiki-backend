@@ -52,7 +52,8 @@ const getAllPosts = (req, res) => {
 	res.send(all);
 }
 const latestPosts = async (req, res) => {
-	const latest_three_posts = posts.getPostMetadata().slice(0,3)
+	const length = posts.getPostMetadata().length
+	const latest_three_posts = posts.getPostMetadata().slice((length-3),(length))
 	res.send(latest_three_posts);
 }
 
