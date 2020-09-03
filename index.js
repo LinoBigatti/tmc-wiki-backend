@@ -82,7 +82,7 @@ if(development) {
 }
 
 
-app.get('/archive/*', archive.index);
+app.get('/archive/*', archive.download);
 app.get('/archive', archive.index);
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));

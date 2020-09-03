@@ -29,6 +29,9 @@ const index = (req, res) => {
 					`
 
 	lsFiles.forEach(file => {
+		if(file == '.nodelete') {
+			return;
+		}
 		var stats= fs.statSync(`./archive/${file}`);
 
 		name = file;
@@ -40,7 +43,11 @@ const index = (req, res) => {
     					<td>${name}</td>
     					<td>${size / 1000}Kb</td>
     					<td>${created.toISOString()}</td>
-    					<td>Click here</td>
+    					<td>
+    						<a href="/archive/${name}">
+    							Click here
+    						</a>
+    					</td>
   					</tr>
   					`
 	});
@@ -52,3 +59,8 @@ const index = (req, res) => {
 	res.send(response);
 }
 exports.index = index;
+
+const download = (req, res) => {
+	res.download(`.${req.url}`);
+}
+exports.download = download;
