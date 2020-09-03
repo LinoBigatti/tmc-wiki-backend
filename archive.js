@@ -8,6 +8,14 @@ const index = (req, res) => {
 	var lsFiles = fs.readdirSync('./archive/');
 	
 	var response = 	`
+					<style>
+					table, th, td {
+  						border: 1px solid black;
+  						border-collapse: collapse;
+  						padding: 5px;
+					} 
+					</style>
+
 					<table>
 					<thead>
   						<tr>
@@ -30,8 +38,8 @@ const index = (req, res) => {
 		response +=	`
 					<tr>
     					<td>${name}</td>
-    					<td>${size}</td>
-    					<td>${created}</td>
+    					<td>${size / 1000}Kb</td>
+    					<td>${created.toISOString()}</td>
     					<td>Click here</td>
   					</tr>
   					`
