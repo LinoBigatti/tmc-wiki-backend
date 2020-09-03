@@ -7,7 +7,7 @@ const fs = require('fs');
 const index = (req, res) => {
 	var lsFiles = fs.readdirSync('./archive/');
 	
-	var response = 	`
+	/*var response = 	`
 					<style>
 					table, th, td {
   						border: 1px solid black;
@@ -40,7 +40,8 @@ const index = (req, res) => {
   						</tr>
 					</thead>
 					<tbody>
-					`
+					`*/
+	var response = {}
 
 	lsFiles.forEach(file => {
 		if(file == '.nodelete') {
@@ -52,7 +53,7 @@ const index = (req, res) => {
 		size = stats.size;
 		created = stats.ctime;
 
-		response +=	`
+		/*response +=	`
 					<tr>
     					<td>${name}</td>
     					<td>${size / 1000}Kb</td>
@@ -63,12 +64,16 @@ const index = (req, res) => {
     						</a>
     					</td>
   					</tr>
-  					`
+  					`*/
+  		response[name] = { 	'name': name, 
+  							'size': size / 1000, 
+  							'created': created.toISOString(), 
+  							'link': `/archive/${name}` }
 	});
-	response +=	`
+	/*response +=	`
 				</tbody>
 				</table>
-				`
+				`*/
 
 	res.send(response);
 }
