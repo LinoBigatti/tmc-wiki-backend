@@ -13,8 +13,22 @@ const index = (req, res) => {
   						border: 1px solid black;
   						border-collapse: collapse;
   						padding: 5px;
-					} 
+					}
+
+					button {
+						position: fixed;
+						bottom: 5px;
+						right: 5px;
+						margin: 0;
+						padding: 5px 3px;
+					}
 					</style>
+
+					<a href="/archive-upload">
+    					<button type="button">
+      						<b> UPLOAD </b>
+    					</button>
+					</a>
 
 					<table>
 					<thead>
