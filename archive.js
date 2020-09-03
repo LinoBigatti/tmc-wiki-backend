@@ -78,3 +78,40 @@ const download = (req, res) => {
 	res.download(`.${req.url}`);
 }
 exports.download = download;
+
+const uploadForm = (req, res) => {
+	res.send(	`
+				<style>
+					button {
+						position: fixed;
+						bottom: 5px;
+						right: 5px;
+						margin: 0;
+						padding: 5px 3px;
+					}
+				</style>
+
+				<a href="/archive">
+    				<button type="button">
+      					<b> GO BACK </b>
+    				</button>
+				</a>
+
+				<h1>Upload a litematic.</h1> 
+   				
+    			<form action="/__archive-upload__" enctype="multipart/form-data" method="POST"> 
+					<span>Upload your file:</span>   
+        			<input type="file" name="litematic" required/> <br> 
+        			<input type="submit" value="submit">  
+    			</form> 
+			 	`);
+}
+exports.uploadForm = uploadForm;
+
+const uploadProcess = (req, res) => {
+	var litematic = req.files.litematic;
+	litematic.mv(`./archive/${litematic.name}`);
+
+	res.redirect('/archive');
+}
+exports.uploadProcess = uploadProcess;

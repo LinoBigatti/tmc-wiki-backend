@@ -7,6 +7,7 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const xss = require('xss-clean');
+const fileUpload = require('express-fileupload');
 
 const posts = require('./posts');
 const archive = require('./archive');
@@ -15,6 +16,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(xss());
 app.use(compression());
+app.use(fileUpload({createParentPath: true}));
 //app.use(express.urlencoded({ extended: true }));
 
 const development = false;
@@ -84,6 +86,8 @@ if(development) {
 
 app.get('/archive/*', archive.download);
 app.get('/archive', archive.index);
+app.get('/archive-upload', archive.uploadForm);
+app.post('/__archive-upload__', archive.uploadProcess);
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
