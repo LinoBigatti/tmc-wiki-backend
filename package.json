@@ -4,6 +4,7 @@
   "description": "Backend fo the Hekate/Tech mc Wiki",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,11 +21,13 @@
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "express": "^4.17.1",
+    "express-fileupload": "^1.2.0",
     "fs": "0.0.1-security",
     "markdown-it": "^11.0.0",
+    "mongodb": "^3.6.0",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.4",
-    "xss-clean": "^0.1.1",
-    "passport-discord": "^0.1.4"
+    "passport-discord": "^0.1.4",
+    "xss-clean": "^0.1.1"
   }
 }
