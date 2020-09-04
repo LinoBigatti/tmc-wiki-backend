@@ -114,9 +114,16 @@ const uploadForm = (req, res) => {
 exports.uploadForm = uploadForm;
 
 const uploadProcess = (req, res) => {
-	var litematic = req.files.litematic;
-	litematic.mv(`./archive/${litematic.name}`);
+    const file = req.files.file;
+    const file_ext = (file.name.split('.').pop())
+    console.log(file_ext)
 
-	res.redirect('/archive');
+    if (file_ext !== "litematic" && file_ext !== "schematic" && file_ext !== "nbt" && file_ext !== "png") {
+        res.redirect('/')
+        return
+    }
+    file.mv(`./archive/${file.name}`);
+
+    res.redirect('/archive');
 }
 exports.uploadProcess = uploadProcess;
