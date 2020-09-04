@@ -125,3 +125,7 @@ metadata.json
 /data
 
 /.idea
+
+# archive data
+archive/*
+!archive/.nodelete
