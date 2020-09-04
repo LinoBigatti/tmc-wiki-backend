@@ -23,9 +23,10 @@
     "express": "^4.17.1",
     "fs": "0.0.1-security",
     "markdown-it": "^11.0.0",
+    "mongodb": "^3.6.1",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.4",
-    "xss-clean": "^0.1.1",
-    "passport-discord": "^0.1.4"
+    "passport-discord": "^0.1.4",
+    "xss-clean": "^0.1.1"
   }
 }

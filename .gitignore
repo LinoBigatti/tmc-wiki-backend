@@ -121,5 +121,6 @@ dist
 posts/*
 !posts/.nodelete
 metadata.json
+/app.js
 
 /.idea
