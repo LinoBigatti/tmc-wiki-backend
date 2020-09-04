@@ -63,15 +63,15 @@ const latestPosts = async (req, res) => {
 	res.send(latest_three_posts);
 }
 
-app.get('/api/__getpost__', getPost);
-app.post('/api/__getpost__', getPost_);
+app.get('/__getpost__', getPost);
+app.post('/__getpost__', getPost_);
 
-app.post('/api/__newpost__', parsePost);
+app.post('/__newpost__', parsePost);
 
-app.post('/api/__editpost__', editPost);
+app.post('/__editpost__', editPost);
 
-app.get('/api/__allposts__', getAllPosts);
-app.get('/api/__latestposts__', latestPosts);
+app.get('/__allposts__', getAllPosts);
+app.get('/__latestposts__', latestPosts);
 
 if(development) {
 	app.get('/newPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
@@ -86,7 +86,6 @@ if(development) {
 
 app.get('/archive/*', archive.download);
 app.get('/archive', archive.index);
-app.get('/archive-upload', archive.uploadForm);
 app.post('/__archive-upload__', archive.uploadProcess);
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
