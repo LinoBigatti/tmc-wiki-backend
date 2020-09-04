@@ -4,8 +4,10 @@ Litematic archive handling
 const fs = require('fs');
 const index = (req, res) => {
     var lsFiles = fs.readdirSync('./archive/');
-    var response = {}
-    id = 1
+
+    var response = {};
+    id = 0;
+
     lsFiles.forEach(file => {
         if (file == '.nodelete') {
             return;
@@ -15,6 +17,7 @@ const index = (req, res) => {
         name = file;
         size = stats.size;
         created = stats.ctime;
+
         response[id] = {
             'name': name,
             'size': size / 1000,
@@ -29,19 +32,29 @@ const index = (req, res) => {
 exports.index = index;
 
 const download = (req, res) => {
-    console.log(req.params)
+//    console.log(req.params)
     res.download(`.${req.url}`);
 }
 exports.download = download;
 
 const uploadProcess = (req, res) => {
     const file = req.files.file;
-    const file_ext = (file.name.split('.').pop())
-    if (file_ext !== "litematic" && file_ext !== "schematic" && file_ext !== "nbt" && file_ext !== "png") {
-        res.redirect('/')
-        return
+    const fileExt = (file.name.split('.').pop());
+    const fileName = file.name.split('.').slice(0, -1).join('.');
+
+    if(fileExt !== 'litematic' && fileExt !== 'schematic' && fileExt !== 'nbt' && fileExt !== 'png') {
+        res.redirect('/');
+        return;
     }
-    file.mv(`./archive/${file.name}`);
+
+    path = `./archive/${file.name}`;
+    id = 1;
+
+    while(fs.existsSync(path)) {
+    	path = `./archive/${fileName}-${id}.${fileExt}`;
+    	id++;
+    }
+    file.mv(path);
 
     res.redirect('/archive');
 }
