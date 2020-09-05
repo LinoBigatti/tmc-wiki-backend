@@ -4,7 +4,10 @@
   "description": "Backend fo the Hekate/Tech mc Wiki",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "start": "run.bat start",
+    "start_": "node index.js",
+    "dev": "run.bat dev",
+    "dev_": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
