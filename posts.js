@@ -22,7 +22,7 @@ class Post {
 	}
 	save() {
 		var _res;
-		var object = {title: this.title, des: this.des, tags: this.tags, body: this.body}
+		var object = {title: this.title, desc: this.desc, tags: this.tags, last_edited: this.time, body: this.body}
 		mongodb_foo.client.connect(function(err) {
 			if(err){console.log(err); return}
 			const db = mongodb_foo.client.db(mongodb_foo.dbName);
