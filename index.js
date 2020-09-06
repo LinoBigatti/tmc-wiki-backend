@@ -11,7 +11,9 @@ const fileUpload = require('express-fileupload');
 
 const posts = require('./posts');
 const archive = require('./archive');
+
 const mongodb_foo = require('./mongodb_foo.js')
+const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
 app.use(bodyParser.json());
@@ -31,17 +33,31 @@ const parsePost = (req, res) => {
 
 const getPost = (req, res) => {
 	const postId = req.query.id;
-	const post = posts.getPostMetadata()[postId - 1];
-	post.body = posts.getBody(post.id)
-	// see what post number is being requested
-	console.log("Post ID Number: " + postId)
-	res.send(post);
+	var client = new MongoClient(mongodb_foo.url)
+	client.connect(function(err) {
+		if(err){console.log(err); return}
+		const db = client.db(mongodb_foo.dbName);
+		console.log("Connected successfully to server");
+
+		mongodb_foo.findDocumentById(db, postId, "posts", post => {
+			res.send(post);
+			client.close()
+		})
+	});
 }
 const getPost_ = (req, res) => {
 	const postId = req.body.id;
-	const post = posts.getPostMetadata()[postId - 1];
-	post.body = posts.getBody(post.id)
-	res.send(post);
+	var client = new MongoClient(mongodb_foo.url)
+	client.connect(function(err) {
+		if(err){console.log(err); return}
+		const db = client.db(mongodb_foo.dbName);
+		console.log("Connected successfully to server");
+
+		mongodb_foo.findDocumentById(db, postId, "posts", post => {
+			res.send(post);
+			client.close()
+		})
+	});
 }
 
 const editPost = async (req, res) => {
