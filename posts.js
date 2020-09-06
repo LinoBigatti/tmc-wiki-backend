@@ -3,7 +3,8 @@
 const fs = require('fs');
 const dir = './posts';
 const mongodb_foo = require('./mongodb_foo.js');
-const { client } = require('./mongodb_foo.js');
+const assert = require('assert');
+const MongoClient = require('mongodb').MongoClient;
 
 class Post {
 	constructor(body, title, tags, desc) {
@@ -21,17 +22,18 @@ class Post {
 		this.time = newTime;
 	}
 	save() {
+		var client = new MongoClient(mongodb_foo.url)
 		var _res;
 		var object = {title: this.title, desc: this.desc, tags: this.tags, last_edited: this.time, body: this.body}
-		mongodb_foo.client.connect(function(err) {
+		client.connect(function(err) {
 			if(err){console.log(err); return}
-			const db = mongodb_foo.client.db(mongodb_foo.dbName);
+			const db = client.db(mongodb_foo.dbName);
 			console.log("Connected successfully to server");
 	
 			mongodb_foo.insertDocument(db, object, "posts", res => {
 				_res = res.insertedId;
 				console.log("Post saved correctly")
-				mongodb_foo.client.close()
+				client.close()
 			})
 		});
 		this.id = _res;
@@ -43,9 +45,18 @@ class Post {
 }
 exports.Post = Post;
 
-const getPostMetadata = () => {
-	var postMetadata = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
-	return postMetadata;
+const getPostMetadata = (callback) => {
+	var client = new MongoClient(mongodb_foo.url)
+	client.connect(function (err) {
+		if(err){console.log(err); return}
+		const db = client.db(mongodb_foo.dbName);
+		console.log("Connected successfully to server");
+
+		mongodb_foo.findAllDocuments(db, "posts", res => {
+			client.close()
+			callback(res)
+		})
+	});
 }
 exports.getPostMetadata = getPostMetadata;
 

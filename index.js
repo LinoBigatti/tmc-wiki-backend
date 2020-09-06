@@ -54,14 +54,17 @@ const editPost = async (req, res) => {
 	res.send('OK')
 }
 
-const getAllPosts = (req, res) => {
-	const all = posts.getPostMetadata()
-	res.send(all);
+const getAllPosts = async (req, res) => {
+	posts.getPostMetadata((all) => {
+		res.send(all);
+	});
 }
 const latestPosts = async (req, res) => {
-	const length = posts.getPostMetadata().length
-	const latest_three_posts = posts.getPostMetadata().slice((length-3),(length))
-	res.send(latest_three_posts);
+	posts.getPostMetadata((all) => {
+		const length = all.length
+		const latest_three_posts = all.slice((length-3),(length))
+		res.send(latest_three_posts);
+	});
 }
 
 app.get('/api/__getpost__', getPost);
