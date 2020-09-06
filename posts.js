@@ -2,6 +2,8 @@
 
 const fs = require('fs');
 const dir = './posts';
+const mongodb_foo = require('./mongodb_foo.js');
+const { client } = require('./mongodb_foo.js');
 
 class Post {
 	constructor(body, title, tags, desc) {
@@ -10,7 +12,7 @@ class Post {
 		this.tags = tags;
 		this.desc = desc;
 		this.time = new Date().toDateString();
-		this.id = fs.readdirSync(dir).length;
+		this.id;
 	}
 	get_time() {
 		return this.time;
@@ -19,20 +21,20 @@ class Post {
 		this.time = newTime;
 	}
 	save() {
-		fs.writeFile(dir + '/' + this.id + '.json', this.body, function(err) {
-    		if(err) {
-        		return console.log(err);
-    		}
-    		console.log("Post saved correctly");
+		var _res;
+		var object = {title: this.title, des: this.des, tags: this.tags, body: this.body}
+		mongodb_foo.client.connect(function(err) {
+			if(err){console.log(err); return}
+			const db = mongodb_foo.client.db(mongodb_foo.dbName);
+			console.log("Connected successfully to server");
+	
+			mongodb_foo.insertDocument(db, object, "posts", res => {
+				_res = res.insertedId;
+				console.log("Post saved correctly")
+				mongodb_foo.client.close()
+			})
 		});
-		var postMetadata = getPostMetadata();
-		postMetadata[this.id - 1] = { "title": this.title, "id": this.id, "tags": this.tags, "description": this.desc, "last_edited": this.time};
-		fs.writeFile('metadata.json', JSON.stringify(postMetadata), function(err) {
-    		if(err) {
-        		return console.log(err);
-    		}
-    		console.log("Metadata saved correctly");
-		});
+		this.id = _res;
 	}
 
 	setId(id) {

@@ -11,6 +11,7 @@ const fileUpload = require('express-fileupload');
 
 const posts = require('./posts');
 const archive = require('./archive');
+const mongodb_foo = require('./mongodb_foo.js')
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,9 +24,9 @@ const development = false;
 
 const parsePost = (req, res) => {
 	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
-	console.log(`Created post #${post.id}`);
 	post.save();
-	res.send('OK')
+	res.send('OK');
+	console.log(`Created post #${req.body.title}`);
 }
 
 const getPost = (req, res) => {
@@ -63,30 +64,30 @@ const latestPosts = async (req, res) => {
 	res.send(latest_three_posts);
 }
 
-app.get('/__getpost__', getPost);
-app.post('/__getpost__', getPost_);
+app.get('/api/__getpost__', getPost);
+app.post('/api/__getpost__', getPost_);
 
-app.post('/__newpost__', parsePost);
+app.post('/api/__newpost__', parsePost);
 
-app.post('/__editpost__', editPost);
+app.post('/api/__editpost__', editPost);
 
-app.get('/__allposts__', getAllPosts);
-app.get('/__latestposts__', latestPosts);
+app.get('/api/__allposts__', getAllPosts);
+app.get('/api/__latestposts__', latestPosts);
 
 if(development) {
-	app.get('/newPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
+	app.get('/api/newPost', (req, res) => { res.sendFile(__dirname + '/client/post.html'); });
 
 	const edit = require('./client/edit');
-	app.get('/edit', edit.clientEdit);
+	app.get('/api/edit', edit.clientEdit);
 
 	const showPost = require('./client/showPost');
-	app.get('/post', showPost.clientGet);
+	app.get('/api/post', showPost.clientGet);
 }
 
 
-app.get('/archive/*', archive.download);
-app.get('/archive', archive.index);
-app.post('/__archive-upload__', archive.uploadProcess);
+app.get('/api/archive/*', archive.download);
+app.get('/api/archive', archive.index);
+app.post('/api/__archive-upload__', archive.uploadProcess);
 
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
