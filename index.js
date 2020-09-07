@@ -62,11 +62,8 @@ const getPost_ = (req, res) => {
 
 const editPost = async (req, res) => {
 	const  postId = req.query.id;
-	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
-	post.setId(postId);
-	post.edit_time(new Date().toDateString());
-	console.log(`Edited post #${post.id}`);
-	post.save();
+	posts.Post.editbyId(postId, req.body.body, req.body.title, req.body.tags, req.body.description)
+	console.log(`Edited post #${postId}`);
 	res.send('OK')
 }
 

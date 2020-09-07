@@ -18,8 +18,19 @@ class Post {
 	get_time() {
 		return this.time;
 	}
-	edit_time(newTime) {
-		this.time = newTime;
+	static editbyId(id, body, title, tags, desc){
+		var client = new MongoClient(mongodb_foo.url)
+		var object = {title: title, desc: desc, tags: tags, last_edited: new Date().toDateString(), body: body}
+		client.connect(function(err) {
+			if(err){console.log(err); return}
+			const db = client.db(mongodb_foo.dbName);
+			console.log("Connected successfully to server");
+	
+			mongodb_foo.editDocumentById(db, id, object, "posts", res => {
+				console.log("Post saved correctly")
+				client.close()
+			})
+		});
 	}
 	save() {
 		var client = new MongoClient(mongodb_foo.url)
@@ -37,10 +48,6 @@ class Post {
 			})
 		});
 		this.id = _res;
-	}
-
-	setId(id) {
-		this.id = id;
 	}
 }
 exports.Post = Post;

@@ -40,7 +40,7 @@ exports.findAllDocuments = findAllDocuments;
 async function findDocumentById(db, id, name, callback){
     // Get the documents collection
     const collection = db.collection(name);
-    // Find some documents
+    // Find some document
     collection.findOne({_id: new ObjectId(id)}, {}, function(err, docs) {
         if(err){console.log(err); return}
         console.log(`Found ${id} document`);
@@ -48,3 +48,15 @@ async function findDocumentById(db, id, name, callback){
     });
 }
 exports.findDocumentById = findDocumentById;
+
+async function editDocumentById(db, id, object, name, callback){
+    // Get the documents collection
+    const collection = db.collection(name);
+        collection.updateOne({_id: new ObjectId(id)}
+        , { $set: object }, function(err, result) {
+            if(err){console.log(err); return}
+        console.log(`Updated the ${result.title} document`);
+        callback(result);
+    });  
+}
+exports.editDocumentById = editDocumentById;
