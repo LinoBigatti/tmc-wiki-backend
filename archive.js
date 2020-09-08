@@ -42,7 +42,7 @@ const uploadProcess = (req, res) => {
     const fileExt = (file.name.split('.').pop());
     const fileName = file.name.split('.').slice(0, -1).join('.');
 
-    if(fileExt !== 'litematic' && fileExt !== 'schematic' && fileExt !== 'nbt' && fileExt !== 'png') {
+    if(fileExt !== 'litematic' && fileExt !== 'schematic' && fileExt !== 'nbt') {
         res.redirect('/');
         return;
     }
