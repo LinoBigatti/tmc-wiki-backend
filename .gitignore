@@ -120,9 +120,12 @@ dist
 
 posts/*
 !posts/.nodelete
+
+data/*
+!data/.nodelete
+
 metadata.json
 /app.js
-/data
 
 /.idea
 

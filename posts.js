@@ -2,6 +2,9 @@
 
 const fs = require('fs');
 const dir = './posts';
+const mongodb_foo = require('./mongodb_foo.js');
+const assert = require('assert');
+const MongoClient = require('mongodb').MongoClient;
 
 class Post {
 	constructor(body, title, tags, desc) {
@@ -10,40 +13,57 @@ class Post {
 		this.tags = tags;
 		this.desc = desc;
 		this.time = new Date().toDateString();
-		this.id = fs.readdirSync(dir).length;
+		this.id;
 	}
 	get_time() {
 		return this.time;
 	}
-	edit_time(newTime) {
-		this.time = newTime;
+	static editbyId(id, body, title, tags, desc){
+		var client = new MongoClient(mongodb_foo.url)
+		var object = {title: title, desc: desc, tags: tags, last_edited: new Date().toDateString(), body: body}
+		client.connect(function(err) {
+			if(err){console.log(err); return}
+			const db = client.db(mongodb_foo.dbName);
+			console.log("Connected successfully to server");
+	
+			mongodb_foo.editDocumentById(db, id, object, "posts", res => {
+				console.log("Post saved correctly")
+				client.close()
+			})
+		});
 	}
 	save() {
-		fs.writeFile(dir + '/' + this.id + '.json', this.body, function(err) {
-    		if(err) {
-        		return console.log(err);
-    		}
-    		console.log("Post saved correctly");
+		var client = new MongoClient(mongodb_foo.url)
+		var _res;
+		var object = {title: this.title, desc: this.desc, tags: this.tags, last_edited: this.time, body: this.body}
+		client.connect(function(err) {
+			if(err){console.log(err); return}
+			const db = client.db(mongodb_foo.dbName);
+			console.log("Connected successfully to server");
+	
+			mongodb_foo.insertDocument(db, object, "posts", res => {
+				_res = res.insertedId;
+				console.log("Post saved correctly")
+				client.close()
+			})
 		});
-		var postMetadata = getPostMetadata();
-		postMetadata[this.id - 1] = { "title": this.title, "id": this.id, "tags": this.tags, "description": this.desc, "last_edited": this.time};
-		fs.writeFile('metadata.json', JSON.stringify(postMetadata), function(err) {
-    		if(err) {
-        		return console.log(err);
-    		}
-    		console.log("Metadata saved correctly");
-		});
-	}
-
-	setId(id) {
-		this.id = id;
+		this.id = _res;
 	}
 }
 exports.Post = Post;
 
-const getPostMetadata = () => {
-	var postMetadata = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
-	return postMetadata;
+const getPostMetadata = (callback) => {
+	var client = new MongoClient(mongodb_foo.url)
+	client.connect(function (err) {
+		if(err){console.log(err); return}
+		const db = client.db(mongodb_foo.dbName);
+		console.log("Connected successfully to server");
+
+		mongodb_foo.findAllDocuments(db, "posts", res => {
+			client.close()
+			callback(res)
+		})
+	});
 }
 exports.getPostMetadata = getPostMetadata;
 
