@@ -37,10 +37,11 @@ console.log('arguments: ', arguments);
 const createPost = async (req, res) => {
 	const reqBody = utils.cast('object', req.body);
 	const body = utils.cast('string', reqBody.body);
+	const author = utils.cast('string', reqBody.author);
 	const title = utils.cast('string', reqBody.title);
 	const tags = utils.cast('string', reqBody.tags);
 	const description = utils.cast('string', reqBody.description);
-	const metadata = await posts.createPost(title, description, tags, body);
+	const metadata = await posts.createPost(author, title, description, tags, body);
 	console.log(`Created post #${metadata.id}`);
 	res.send('OK')
 }
@@ -75,19 +76,27 @@ const editPost = async (req, res) => {
 		res.status(404).send(`No such post ID ${postId}`);
 		return;
 	}
+	const reqBody = utils.cast('object', req.body);
+	const author = utils.cast('string', reqBody.author);
+	if (author.length === 0) {
+		res.status(403).send('Cannot have empty author');
+		return;
+	}
 	const metadata = posts.getMetadata(postId);
 	if (metadata.edit_count !== utils.cast('number', req.body.lastEditCount)) {
 		res.send('OUTDATED');
 		return;
 	}
-	const reqBody = utils.cast('object', req.body);
+	metadata.edit_count++;
+
+	await posts.setPostBody(postId, utils.cast('string', reqBody.body));
+	const message = utils.cast('string', reqBody.message);
 	metadata.title = utils.cast('string', reqBody.title);
 	metadata.tags = utils.cast('string', reqBody.tags);
 	metadata.description = utils.cast('string', reqBody.description);
 	metadata.last_edited = new Date().toDateString();
-	metadata.edit_count++;
-	await posts.setPostBody(postId, utils.cast('string', reqBody.body));
 	await posts.saveMetadata();
+	await posts.commit(postId, message, author);
 	console.log(`Edited post #${postId}`);
 	res.send('OK');
 }

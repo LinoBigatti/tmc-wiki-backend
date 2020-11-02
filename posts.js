@@ -1,7 +1,9 @@
 // Post parser
 
 const fs = require('fs');
+const Git = require('nodegit');
 const dir = './posts';
+const metadataFile = `${dir}/metadata.json`
 
 // ===== POST METADATA ===== //
 
@@ -18,31 +20,71 @@ class PostMetadata {
 
 const postMetadata = new Map();
 let nextPostId = 0;
-(() => {
-	const metadata = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
-	if (Array.isArray(metadata)) {
-		// legacy format
-		for (let post of metadata) {
-			post.id = +post.id;
-			post.edit_count = post.edit_count || 0;
-			postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
-			if (post.id >= nextPostId) {
-				nextPostId = post.id + 1;
+const initialize = () => {
+	let metadata;
+	let needsToSave = false;
+	if (fs.existsSync(metadataFile)) {
+		metadata = JSON.parse(fs.readFileSync(metadataFile, 'utf8'));
+	} else {
+		if (fs.existsSync('metadata.json')) {
+			metadata = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
+		} else {
+			metadata = null;
+		}
+		needsToSave = true;
+	}
+
+	if (metadata) {
+		if (Array.isArray(metadata)) {
+			// legacy format
+			for (let post of metadata) {
+				post.id = +post.id;
+				post.edit_count = post.edit_count || 0;
+				postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
+				if (post.id >= nextPostId) {
+					nextPostId = post.id + 1;
+				}
+			}
+		} else {
+			nextPostId = metadata.nextPostId;
+			for (let post of metadata.posts) {
+				postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
 			}
 		}
-	} else {
-		nextPostId = metadata.nextPostId;
-		for (let post of metadata.posts) {
-			postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
-		}
 	}
-})();
+
+	if (needsToSave) {
+		saveMetadata().then(() => console.log('Written initial metadata.json file'));
+	}
+
+	Git.Repository.open(`${dir}/.git`).then(() => console.log('Found posts git repository'), () => {
+		let repo, index;
+		Git.Repository.init(dir, 0).then(r => {
+			repo = r;
+			return repo.refreshIndex();
+		})
+			.then(i => {
+			index = i;
+			return index.addAll();
+		})
+			.then(() => index.write())
+			.then(() => index.writeTree())
+			.then(oid => {
+				const author = Git.Signature.now('tmc-wiki', 'tmc-wiki@technicalmc.xyz');
+				const committer = Git.Signature.now('tmc-wiki', 'tmc-wiki@technicalmc.xyz');
+				return repo.createCommit('HEAD', author, committer, 'Initial commit', oid, []);
+			})
+			.then(() => {
+				console.log('Created posts git repository');
+			});
+	});
+};
 
 const saveMetadata = async () => {
-	await fs.writeFile('metadata.json', JSON.stringify({
+	await fs.writeFile(metadataFile, JSON.stringify({
 		nextPostId: nextPostId,
 		posts: Array.from(postMetadata.values())
-	}), (err) => {
+	}, null, 2), (err) => {
 		if (err) {
 			console.log(err);
 		} else {
@@ -80,7 +122,8 @@ const getPostBody = async (postId) => {
 		postBodyCache.delete(postBodyCache.keys().next().value);
 	}
 
-	const body = await fs.promises.readFile(`${dir}/${postId}.json`, 'utf8');
+	const beautified = await fs.promises.readFile(`${dir}/${postId}.json`, 'utf8');
+	const body = JSON.stringify(JSON.parse(beautified));
 
 	postBodyCache.set(postId, body);
 	return body;
@@ -94,8 +137,10 @@ const setPostBody = async (postId, newBody) => {
 		}
 	}
 
+	const beautified = JSON.stringify(JSON.parse(newBody), null, 2);
+
 	postBodyCache.set(postId, newBody);
-	await fs.writeFile(`${dir}/${postId}.json`, newBody, {encoding: 'utf8'}, (err) => {
+	await fs.writeFile(`${dir}/${postId}.json`, beautified, {encoding: 'utf8'}, (err) => {
 		if (err) {
 			console.log(err);
 		} else {
@@ -106,9 +151,28 @@ const setPostBody = async (postId, newBody) => {
 exports.setPostBody = setPostBody;
 
 
+// ===== GIT ===== //
+
+const commit = async (postId, message, author, email = `${author}@technicalmc.xyz`) => {
+	const repo = await Git.Repository.open(`${dir}/.git`);
+	const index = await repo.refreshIndex();
+	await index.addByPath(`${postId}.json`);
+	await index.addByPath('metadata.json');
+	await index.write();
+	const oid = await index.writeTree();
+	const head = await Git.Reference.nameToId(repo, 'HEAD');
+	const parent = await repo.getCommit(head);
+	const authorSig = Git.Signature.now(author, email);
+	const committerSig = Git.Signature.now('tmc-wiki', 'tmc-wiki@technicalmc.xyz');
+	const commitId = await repo.createCommit('HEAD', authorSig, committerSig, `[${postId}] ${message}`, oid, [parent]);
+	console.log(`Committed change ${commitId} to file ${postId}.json`);
+}
+exports.commit = commit;
+
+
 // ===== OTHER ===== //
 
-const createPost = async (title, description, tags, body) => {
+const createPost = async (author, title, description, tags, body) => {
 	const postId = nextPostId++;
 	// save post body before metadata to avoid race condition
 	await setPostBody(postId, body);
@@ -119,7 +183,8 @@ const createPost = async (title, description, tags, body) => {
 	metadata.tags = tags;
 	postMetadata.set(postId, metadata);
 	await saveMetadata();
-	return postMetadata;
+	await commit(postId, `Create ${title}`, author);
+	return metadata;
 }
 exports.createPost = createPost;
 
@@ -136,3 +201,5 @@ const getNetworkPostObject = async (postId) => {
 	};
 }
 exports.getNetworkPostObject = getNetworkPostObject;
+
+initialize();
