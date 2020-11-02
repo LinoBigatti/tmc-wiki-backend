@@ -1,22 +1,25 @@
 /*
 Litematic archive handling
 */
+
+const utils = require('./utils');
+
 const fs = require('fs');
 const index = (req, res) => {
-    var lsFiles = fs.readdirSync('./archive/');
+    const lsFiles = fs.readdirSync('./archive/');
 
-    var response = {};
-    id = 0;
+    const response = {};
+    let id = 0;
 
     lsFiles.forEach(file => {
-        if (file == '.nodelete') {
+        if (file === '.nodelete') {
             return;
         }
-        var stats = fs.statSync(`./archive/${file}`);
+        const stats = fs.statSync(`./archive/${file}`);
 
-        name = file;
-        size = stats.size;
-        created = stats.ctime;
+        const name = file;
+        const size = stats.size;
+        const created = stats.ctime;
 
         response[id] = {
             'name': name,
@@ -32,29 +35,36 @@ const index = (req, res) => {
 exports.index = index;
 
 const download = (req, res) => {
-//    console.log(req.params)
-    res.download(`.${req.url}`);
+    let fileName = utils.cast('string', req.params.fileName);
+    fileName = utils.sanitizeFilename(fileName);
+    const filePath = `./archive/${fileName}`;
+    if (fileName === '.nodelete' || !fs.existsSync(filePath)) {
+        res.status(404).send(`Archive not found: ${fileName}`);
+        return;
+    }
+    res.download(filePath);
 }
 exports.download = download;
 
-const uploadProcess = (req, res) => {
+const uploadProcess = async (req, res) => {
     const file = req.files.file;
-    const fileExt = (file.name.split('.').pop());
-    const fileName = file.name.split('.').slice(0, -1).join('.');
+    const fileName = utils.sanitizeFilename(file.name);
+    const fileExt = (fileName.split('.').pop());
+    const filePrefix = fileName.split('.').slice(0, -1).join('.');
 
-    if(fileExt !== 'litematic' && fileExt !== 'schematic' && fileExt !== 'nbt') {
+    if (!fileName.contains('.') || fileName === '.nodelete' || (fileExt !== 'litematic' && fileExt !== 'schematic' && fileExt !== 'nbt')) {
         res.redirect('/');
         return;
     }
 
-    path = `./archive/${file.name}`;
-    id = 1;
+    let path = `./archive/${fileName}`;
+    let id = 1;
 
     while(fs.existsSync(path)) {
-    	path = `./archive/${fileName}-${id}.${fileExt}`;
+    	path = `./archive/${filePrefix}-${id}.${fileExt}`;
     	id++;
     }
-    file.mv(path);
+    await file.mv(path);
 
     res.redirect('/archive');
 }
