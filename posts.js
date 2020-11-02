@@ -3,82 +3,136 @@
 const fs = require('fs');
 const dir = './posts';
 
-class Post {
-	constructor(body, title, tags, desc, editCount) {
-		this.body = body;
-		this.title = title;
-		this.tags = tags;
-		this.desc = desc;
-		this.time = new Date().toDateString();
-		this.editCount = editCount;
-		this.id = fs.readdirSync(dir).length;
-	}
-	get_time() {
-		return this.time;
-	}
-	edit_time(newTime) {
-		this.time = newTime;
-	}
-	async save() {
-		await fs.writeFile(dir + '/' + this.id + '.json', this.body, function(err) {
-    		if(err) {
-        		return console.log(err);
-    		}
-    		console.log("Post saved correctly");
-		});
-		var postMetadata = getPostMetadata();
-		postMetadata[this.id - 1] = {
-			"title": this.title,
-			"id": this.id,
-			"tags": this.tags,
-			"description": this.desc,
-			"last_edited": this.time,
-			"edit_count": this.editCount
-		};
-		await fs.writeFile('metadata.json', JSON.stringify(postMetadata), function(err) {
-    		if(err) {
-        		return console.log(err);
-    		}
-    		console.log("Metadata saved correctly");
-		});
-	}
+// ===== POST METADATA ===== //
 
-	setId(id) {
-		this.id = id;
+class PostMetadata {
+	constructor() {
+		this.id = 0;
+		this.title = '';
+		this.tags = '';
+		this.description = '';
+		this.last_edited = new Date().toDateString();
+		this.edit_count = 0;
 	}
 }
-exports.Post = Post;
 
-const getPostMetadata = () => {
-	var postMetadata = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
-	return postMetadata;
-}
-exports.getPostMetadata = getPostMetadata;
-
-const getPostData = () => {
-	var postData = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
-	// console.log(postData);
-	for(post in postData) {
-		//post.body = getBody(post.id);
-		postData[post].body = getBody(postData[post].id);
-	}
-	return postData;
-}
-exports.getPostData = getPostData;
-
-const searchExactTitle = (title) => {
-	var postMetadata = getPostMetadata();
-
-	for(i in postMetadata) {
-		post = postMetadata[i];
-		
-		if(post.title === title) {
-			return i;
+const postMetadata = new Map();
+let nextPostId = 0;
+(() => {
+	const metadata = JSON.parse(fs.readFileSync('metadata.json', 'utf8'));
+	if (Array.isArray(metadata)) {
+		// legacy format
+		for (let post of metadata) {
+			post.id = +post.id;
+			post.edit_count = post.edit_count || 0;
+			postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
+			if (post.id >= nextPostId) {
+				nextPostId = post.id + 1;
+			}
+		}
+	} else {
+		nextPostId = metadata.nextPostId;
+		for (let post of metadata.posts) {
+			postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
 		}
 	}
+})();
+
+const saveMetadata = async () => {
+	await fs.writeFile('metadata.json', JSON.stringify({
+		nextPostId: nextPostId,
+		posts: Array.from(postMetadata.values())
+	}), (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log('Metadata saved correctly');
+		}
+	});
 }
-exports.searchExactTitle = searchExactTitle;
-const getBody = (id) => {
-	return fs.readFileSync(dir + '/' + id + '.json', 'utf8');
+exports.saveMetadata = saveMetadata;
+
+const getAllMetadata = () => Array.from(postMetadata.values());
+exports.getAllMetadata = getAllMetadata;
+
+const postExists = (postId) => postMetadata.has(postId);
+exports.postExists = postExists;
+
+const getMetadata = (postId) => postMetadata.get(postId);
+exports.getMetadata = getMetadata;
+
+
+// ===== POST BODY ===== //
+
+const postBodyCacheLimit = 100;
+const postBodyCache = new Map();
+
+const getPostBody = async (postId) => {
+	if (postBodyCache.has(postId)) {
+		// Move this post ID to the end of the cache
+		const body = postBodyCache.get(postId);
+		postBodyCache.delete(postId);
+		postBodyCache.set(postId, body);
+		return body;
+	}
+
+	while (postBodyCache.size >= postBodyCacheLimit) {
+		postBodyCache.delete(postBodyCache.keys().next().value);
+	}
+
+	const body = await fs.promises.readFile(`${dir}/${postId}.json`, 'utf8');
+
+	postBodyCache.set(postId, body);
+	return body;
+};
+exports.getPostBody = getPostBody;
+
+const setPostBody = async (postId, newBody) => {
+	if (!postBodyCache.has(postId)) {
+		while (postBodyCache.size >= postBodyCacheLimit) {
+			postBodyCache.delete(postBodyCache.keys().next().value);
+		}
+	}
+
+	postBodyCache.set(postId, newBody);
+	await fs.writeFile(`${dir}/${postId}.json`, newBody, {encoding: 'utf8'}, (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log(`Post ${postId} saved successfully`);
+		}
+	});
 }
-exports.getBody = getBody;
+exports.setPostBody = setPostBody;
+
+
+// ===== OTHER ===== //
+
+const createPost = async (title, description, tags, body) => {
+	const postId = nextPostId++;
+	// save post body before metadata to avoid race condition
+	await setPostBody(postId, body);
+	const metadata = new PostMetadata();
+	metadata.id = postId;
+	metadata.title = title;
+	metadata.description = description;
+	metadata.tags = tags;
+	postMetadata.set(postId, metadata);
+	await saveMetadata();
+	return postMetadata;
+}
+exports.createPost = createPost;
+
+const getNetworkPostObject = async (postId) => {
+	const metadata = getMetadata(postId);
+	return {
+		id: postId,
+		title: metadata.title,
+		description: metadata.description,
+		tags: metadata.tags,
+		last_edited: metadata.last_edited,
+		editCount: metadata.edit_count,
+		body: await getPostBody(postId)
+	};
+}
+exports.getNetworkPostObject = getNetworkPostObject;

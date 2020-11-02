@@ -4,7 +4,7 @@
   "description": "Backend fo the Hekate/Tech mc Wiki",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon index.js dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,6 +17,9 @@
     "url": "https://github.com/linobigatti/tmc-wiki-backend/issues"
   },
   "homepage": "https://github.com/linobigatti/tmc-wiki-backend#readme",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "dependencies": {
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
