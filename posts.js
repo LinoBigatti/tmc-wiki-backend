@@ -4,12 +4,13 @@ const fs = require('fs');
 const dir = './posts';
 
 class Post {
-	constructor(body, title, tags, desc) {
+	constructor(body, title, tags, desc, editCount) {
 		this.body = body;
 		this.title = title;
 		this.tags = tags;
 		this.desc = desc;
 		this.time = new Date().toDateString();
+		this.editCount = editCount;
 		this.id = fs.readdirSync(dir).length;
 	}
 	get_time() {
@@ -18,16 +19,23 @@ class Post {
 	edit_time(newTime) {
 		this.time = newTime;
 	}
-	save() {
-		fs.writeFile(dir + '/' + this.id + '.json', this.body, function(err) {
+	async save() {
+		await fs.writeFile(dir + '/' + this.id + '.json', this.body, function(err) {
     		if(err) {
         		return console.log(err);
     		}
     		console.log("Post saved correctly");
 		});
 		var postMetadata = getPostMetadata();
-		postMetadata[this.id - 1] = { "title": this.title, "id": this.id, "tags": this.tags, "description": this.desc, "last_edited": this.time};
-		fs.writeFile('metadata.json', JSON.stringify(postMetadata), function(err) {
+		postMetadata[this.id - 1] = {
+			"title": this.title,
+			"id": this.id,
+			"tags": this.tags,
+			"description": this.desc,
+			"last_edited": this.time,
+			"edit_count": this.editCount
+		};
+		await fs.writeFile('metadata.json', JSON.stringify(postMetadata), function(err) {
     		if(err) {
         		return console.log(err);
     		}

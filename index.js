@@ -32,16 +32,17 @@ else {
 	development = true;
 }
 console.log('arguments: ', arguments);
-const parsePost = (req, res) => {
-	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+const createPost = async (req, res) => {
+	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description, 0);
 	console.log(`Created post #${post.id}`);
-	post.save();
+	await post.save();
 	res.send('OK')
 }
 
 const getPost = (req, res) => {
 	const postId = req.query.id;
 	const post = posts.getPostMetadata()[postId - 1];
+	post.editCount = post.editCount || post.edit_count || 0;
 	post.body = posts.getBody(post.id)
 	// see what post number is being requested
 	console.log("Post ID Number: " + postId)
@@ -50,18 +51,25 @@ const getPost = (req, res) => {
 const getPost_ = (req, res) => {
 	const postId = req.body.id;
 	const post = posts.getPostMetadata()[postId - 1];
+	post.editCount = post.editCount || post.edit_count || 0;
 	post.body = posts.getBody(post.id)
 	res.send(post);
 }
 
 const editPost = async (req, res) => {
-	const  postId = req.query.id;
-	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description);
+	const postId = req.query.id;
+	const oldPost = posts.getPostMetadata()[postId - 1];
+	oldPost.editCount = oldPost.editCount || oldPost.edit_count || 0;
+	if (oldPost.editCount !== req.body.lastEditCount) {
+		res.send('OUTDATED');
+		return;
+	}
+	const post = new posts.Post(req.body.body, req.body.title, req.body.tags, req.body.description, oldPost.editCount + 1);
 	post.setId(postId);
 	post.edit_time(new Date().toDateString());
 	console.log(`Edited post #${post.id}`);
-	post.save();
-	res.send('OK')
+	await post.save();
+	res.send('OK');
 }
 
 const getAllPosts = (req, res) => {
@@ -78,7 +86,7 @@ if(production) {
 	app.get('/__getpost__', getPost);
 	app.post('/__getpost__', getPost_);
 
-	app.post('/__newpost__', parsePost);
+	app.post('/__newpost__', createPost);
 
 	app.post('/__editpost__', editPost);
 
@@ -94,7 +102,7 @@ if(development) {
 	app.get('/api/__getpost__', getPost);
 	app.post('/api/__getpost__', getPost_);
 
-	app.post('/api/__newpost__', parsePost);
+	app.post('/api/__newpost__', createPost);
 
 	app.post('/api/__editpost__', editPost);
 
