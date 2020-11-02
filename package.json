@@ -29,6 +29,7 @@
     "markdown-it": "^11.0.0",
     "mongodb": "^3.6.1",
     "node-fetch": "^2.6.1",
+    "nodegit": "^0.27.0",
     "nodemon": "^2.0.4",
     "passport-discord": "^0.1.4",
     "xss-clean": "^0.1.1"
