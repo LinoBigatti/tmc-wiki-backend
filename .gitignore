@@ -131,3 +131,6 @@ metadata.json
 # archive data
 archive/*
 !archive/.nodelete
+
+# Secrets
+secret_config.json

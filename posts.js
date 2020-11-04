@@ -183,7 +183,7 @@ const createPost = async (author, title, description, tags, body) => {
 	metadata.tags = tags;
 	postMetadata.set(postId, metadata);
 	await saveMetadata();
-	await commit(postId, `Create ${title}`, author);
+	await commit(postId, `Create ${title}`, `${author.discordName}#${author.discordDiscriminator}`, `${author.discordName}@technicalmc.xyz`);
 	return metadata;
 }
 exports.createPost = createPost;
