@@ -132,7 +132,7 @@ const editPost = async (req, res) => {
 	metadata.description = utils.cast('string', reqBody.description);
 	metadata.last_edited = new Date().toDateString();
 	await posts.saveMetadata();
-	await posts.commit(postId, message, `${req.user.discordName}#${req.user.discordDiscriminator}`, `${req.user.discordName}@technicalmc.xyz`);
+	await posts.commit(postId, message, req.user);
 	console.log(`Edited post #${postId}`);
 	res.send('OK');
 }

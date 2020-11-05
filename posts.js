@@ -154,6 +154,16 @@ exports.setPostBody = setPostBody;
 // ===== GIT ===== //
 
 const commit = async (postId, message, author, email = `${author}@technicalmc.xyz`) => {
+	if (typeof(author) === 'object') {
+		let gitUsername = author.discordName;
+		if (gitUsername.length > 34) {
+			gitUsername = gitUsername.substring(0, 34);
+		}
+		gitUsername = gitUsername.replace(/\W/g, '_');
+		gitUsername += '_' + String(author.discordDiscriminator).padStart(4, '0');
+		email = author.discordId + '@technicalmc.xyz';
+		author = gitUsername;
+	}
 	const repo = await Git.Repository.open(`${dir}/.git`);
 	const index = await repo.refreshIndex();
 	await index.addByPath(`${postId}.json`);
@@ -183,7 +193,7 @@ const createPost = async (author, title, description, tags, body) => {
 	metadata.tags = tags;
 	postMetadata.set(postId, metadata);
 	await saveMetadata();
-	await commit(postId, `Create ${title}`, `${author.discordName}#${author.discordDiscriminator}`, `${author.discordName}@technicalmc.xyz`);
+	await commit(postId, `Create ${title}`, author);
 	return metadata;
 }
 exports.createPost = createPost;
