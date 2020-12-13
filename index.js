@@ -55,7 +55,7 @@ passport.deserializeUser((discordId, callback) => {
 passport.use('discord', new DiscordStrategy({
 	clientID: '773179848587608095',
 	clientSecret: secretConfig.discord_client_secret,
-	callbackURL: development ? '/api/auth/success' : '/auth/success',
+	callbackURL: development ? '/api/auth/success' : 'https://technicalmc.xyz/api/auth/success', // FIXME
 	scope: ['identify'],
 	customHeaders: []
 }, (accessToken, refreshToken, profile, callback) => {
@@ -66,7 +66,7 @@ app.use(session({
 	saveUninitialized: true,
 	resave: false,
 	cookie: {
-		secure: production
+		secure: false // FIXME
 	}
 }));
 app.use(passport.initialize());
