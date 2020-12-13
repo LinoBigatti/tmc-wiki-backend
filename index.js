@@ -8,6 +8,7 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const passport = require('passport');
+const querystring = require('querystring');
 const DiscordStrategy = require('passport-discord').Strategy;
 const session = require('express-session');
 
@@ -172,59 +173,39 @@ const requireAuth = (req, res, next) => {
 	}
 }
 
-// if you are running in production mode
-if(production) {
-	app.get('/__getpost__', getPost);
-	app.post('/__getpost__', getPost_);
+const urlPrefix = production ? "/" : "/api/"
 
-	app.post('/__newpost__', requireAuth, createPost);
+app.get(urlPrefix + '__getpost__', getPost);
+app.post(urlPrefix + '__getpost__', getPost_);
 
-	app.post('/__editpost__', requireAuth, editPost);
+app.post(urlPrefix + '__newpost__', requireAuth, createPost);
 
-	app.get('/__allposts__', getAllPosts);
-	app.get('/__latestposts__', latestPosts);
+app.post(urlPrefix + '__editpost__', requireAuth, editPost);
 
-	app.get('/archive/:fileName', archive.download);
-	app.get('/archive', archive.index);
-	app.post('/__archive-upload__', archive.uploadProcess);
+app.get(urlPrefix + '__allposts__', getAllPosts);
+app.get(urlPrefix + '__latestposts__', latestPosts);
 
-	app.get('/auth', passport.authenticate('discord'));
-	app.get('/auth/success', passport.authenticate('discord', {failureRedirect: '/'}), (req, res) => {
-		res.redirect('/');
-	});
-	app.get('/auth/logout', requireAuth, logout);
+app.get(urlPrefix + 'archive/:fileName', archive.download);
+app.get(urlPrefix + 'archive', archive.index);
+app.post(urlPrefix + '__archive-upload__', archive.uploadProcess);
 
-	app.get("/__userinfo__", getUserInfo);
-}
-// if you are running in development mode
-if(development) {
-	app.get('/api/__getpost__', getPost);
-	app.post('/api/__getpost__', getPost_);
+app.get(urlPrefix + 'auth', (req, res, next) => {
+	let redirect = utils.cast('string', req.query.redirect);
+	if (!redirect) {
+		redirect = '/';
+	}
+	passport.authenticate('discord', {callbackURL: 'auth/success', state: redirect})(req, res, next);
+});
+app.get(urlPrefix + 'auth/success', (req, res, next) => {
+	let callbackUrl = utils.cast('string', req.query.state);
+	if (!callbackUrl) {
+		callbackUrl = '/'
+	}
+	passport.authenticate('discord', {failureRedirect: '/', successRedirect: callbackUrl})(req, res, next);
+});
+app.get(urlPrefix + 'auth/logout', requireAuth, logout);
 
-	app.post('/api/__newpost__', requireAuth, createPost);
-
-	app.post('/api/__editpost__', requireAuth, editPost);
-
-	app.get('/api/__allposts__', getAllPosts);
-	app.get('/api/__latestposts__', latestPosts);
-
-	app.get('/api/archive/:fileName', archive.download);
-	app.get('/api/archive', archive.index);
-	app.post('/api/__archive-upload__', archive.uploadProcess);
-
-	app.get('/api/auth', passport.authenticate('discord'));
-	app.get('/api/auth/success', passport.authenticate('discord', {failureRedirect: '/'}), (req, res) => {
-		res.redirect('/');
-	});
-	app.get('/api/auth/logout', requireAuth, logout);
-
-	app.get('/api/__userinfo__', getUserInfo);
-}
-
-
-app.get('/archive/:fileName', archive.download);
-app.get('/archive', archive.index);
-app.post('/__archive-upload__', archive.uploadProcess);
+app.get(urlPrefix + "__userinfo__", getUserInfo);
 
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
