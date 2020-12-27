@@ -208,7 +208,7 @@ app.get(urlPrefix + 'auth', (req, res, next) => {
 	if (!redirect) {
 		redirect = '/';
 	}
-	passport.authenticate('discord', {callbackURL: 'auth/success', state: redirect})(req, res, next);
+	passport.authenticate('discord', {state: redirect})(req, res, next);
 });
 app.get(urlPrefix + 'auth/success', (req, res, next) => {
 	let callbackUrl = utils.cast('string', req.query.state);
