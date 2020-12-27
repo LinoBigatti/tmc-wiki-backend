@@ -13,7 +13,7 @@ class PostMetadata {
 		this.title = '';
 		this.tags = '';
 		this.description = '';
-		this.last_edited = new Date().toDateString();
+		this.last_edited = Date.now();
 		this.edit_count = 0;
 	}
 }
@@ -48,6 +48,15 @@ const initialize = () => {
 		} else {
 			nextPostId = metadata.nextPostId;
 			for (let post of metadata.posts) {
+				if (typeof(post.last_edited) === 'string') {
+					// Legacy last_edited format (from Date.toDateString())
+					const parts = post.last_edited.split(' ');
+					const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(parts[1]);
+					const day = +parts[2];
+					const year = +parts[3];
+					post.last_edited = new Date(year, month, day).getTime();
+				}
+				
 				postMetadata.set(post.id, Object.assign(new PostMetadata(), post));
 			}
 		}
