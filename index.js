@@ -138,15 +138,30 @@ const editPost = async (req, res) => {
 	res.send('OK');
 }
 
-const getAllPosts = (req, res) => {
-	const all = posts.getAllMetadata();
-	res.send(all);
-}
-const latestPosts = async (req, res) => {
-	const all = posts.getAllMetadata();
-	const length = all.length;
-	const latest_three_posts = all.slice(length-3, length);
-	res.send(latest_three_posts);
+const getPosts = async (req, res) => {
+	const query = utils.cast('object', req.query);
+	let n = utils.cast('number', +query.n) || 5;
+	if (n < 0) n = 5;
+	let start = utils.cast('number', +query.start) || 0;
+	if (start < 0) start = 0;
+	const q = utils.cast('string', query.q);
+	let myPosts = posts.getAllMetadata();
+	
+	if (q) {
+		// TODO: sorting
+	} else {
+		myPosts.sort((a, b) => {
+			if (a.last_edited < b.last_edited) return -1;
+			else if (a.last_edited > b.last_edited) return 1;
+			else return 0;
+		});
+	}
+	
+	const length = myPosts.length;
+	if (start > length) start = length;
+	if (start + n > length) n = length - start;
+	myPosts = myPosts.slice(length - start - n, length - start);
+	res.send(myPosts);
 }
 
 const getUserInfo = (req, res) => {
@@ -182,8 +197,7 @@ app.post(urlPrefix + '__newpost__', requireAuth, createPost);
 
 app.post(urlPrefix + '__editpost__', requireAuth, editPost);
 
-app.get(urlPrefix + '__allposts__', getAllPosts);
-app.get(urlPrefix + '__latestposts__', latestPosts);
+app.get(urlPrefix + '__listposts__', getPosts);
 
 app.get(urlPrefix + 'archive/:fileName', archive.download);
 app.get(urlPrefix + 'archive', archive.index);

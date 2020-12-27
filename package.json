@@ -4,7 +4,7 @@
   "description": "Backend fo the Hekate/Tech mc Wiki",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js dev",
+    "dev": "nodemon --ignore posts/ index.js dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "express-fileupload": "^1.2.0",
     "express-session": "^1.17.1",
     "fs": "0.0.1-security",
+    "lunr": "^2.3.9",
     "markdown-it": "^11.0.0",
     "mongodb": "^3.6.1",
     "node-fetch": "^2.6.1",
