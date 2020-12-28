@@ -72,7 +72,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '100mb'}));
 app.use(xss());
 app.use(compression());
 app.use(fileUpload({createParentPath: true}));
